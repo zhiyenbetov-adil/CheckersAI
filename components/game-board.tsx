@@ -31,7 +31,8 @@ import {
   type Position,
   type Piece,
   type CaptureStep,
-  type GameSettings
+  type GameSettings,
+  type PlayerColor
 } from "@/lib/checkers"
 
 interface GameBoardProps {
@@ -39,6 +40,7 @@ interface GameBoardProps {
   aiLevel?: "beginner" | "easy" | "medium" | "hard" | "expert"
   settings?: Partial<GameSettings>
   roomId?: string
+  onlinePlayerColor?: PlayerColor | null
   syncedGameState?: GameState | null
   onMove?: (move: Position, captureSteps: CaptureStep[], nextState: GameState) => void
 }
@@ -61,7 +63,7 @@ type CoachAnalysis = {
   highlights?: string[]
 }
 
-export function GameBoard({ mode = "local", aiLevel = "medium", settings, syncedGameState, onMove }: GameBoardProps) {
+export function GameBoard({ mode = "local", aiLevel = "medium", settings, onlinePlayerColor = null, syncedGameState, onMove }: GameBoardProps) {
   const [gameState, setGameState] = useState<GameState>(() => 
     createInitialGameState(settings)
   )
@@ -152,6 +154,12 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
     const balance = gameState.capturedPieces.dark - gameState.capturedPieces.light
     return Math.max(0, 1000 + balance * 12 + gameState.moveHistory.length * 2)
   }, [gameState.capturedPieces.dark, gameState.capturedPieces.light, gameState.moveHistory.length])
+
+  const boardPerspective: PlayerColor = mode === "online" && onlinePlayerColor === "dark" ? "dark" : "light"
+  const topColor: PlayerColor = boardPerspective === "light" ? "dark" : "light"
+  const bottomColor: PlayerColor = boardPerspective === "light" ? "light" : "dark"
+  const isOnlinePlayerTurn =
+    mode !== "online" || !onlinePlayerColor ? true : gameState.currentPlayer === onlinePlayerColor
 
   const bestMoveNotation = useMemo(() => {
     const captureMoves = gameState.moveHistory.filter((record) => record.move.isCapture)
@@ -481,13 +489,15 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
   const canSelectPiece = useCallback((piece: Piece) => {
     if (gameState.gameStatus !== "playing") return false
     if (piece.color !== gameState.currentPlayer) return false
+    if (mode === "online" && onlinePlayerColor && piece.color !== onlinePlayerColor) return false
     if (gameState.multiCaptureInProgress && piece.id !== gameState.activePieceId) return false
     return movablePieces.some(p => p.id === piece.id)
-  }, [gameState, movablePieces])
+  }, [gameState, mode, movablePieces, onlinePlayerColor])
 
   const handleSquareClick = useCallback((row: number, col: number) => {
     if (gameState.gameStatus !== "playing") return
     if (mode === "ai" && gameState.currentPlayer === "dark") return
+    if (mode === "online" && !isOnlinePlayerTurn) return
     
     const clickedPiece = gameState.pieces.find(
       (p) => p.position.row === row && p.position.col === col
@@ -549,7 +559,7 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
     } else if (clickedPiece && canSelectPiece(clickedPiece)) {
       setGameState(selectPiece(gameState, clickedPiece.id))
     }
-  }, [gameState, captureStepsInProgress, canSelectPiece, isCaptureTarget, mode, onMove])
+  }, [gameState, captureStepsInProgress, canSelectPiece, isCaptureTarget, isOnlinePlayerTurn, mode, onMove])
 
   const sendMessage = () => {
     const message = newMessage.trim()
@@ -743,23 +753,33 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
                 <div>
                   <div className="font-medium">Opponent</div>
                   <div className="text-sm text-muted-foreground">
-                    {mode === "ai" ? `${aiLevel[0].toUpperCase()}${aiLevel.slice(1)} AI` : "ELO 1450"}
+                    {mode === "ai"
+                      ? `${aiLevel[0].toUpperCase()}${aiLevel.slice(1)} AI`
+                      : topColor === "light"
+                        ? "Light"
+                        : "Dark"}
                   </div>
                   {mode === "ai" && aiThinking && <div className="text-xs text-primary">Thinking...</div>}
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: gameState.capturedPieces.light }).map((_, i) => (
-                    <div key={i} className="w-4 h-4 rounded-full bg-amber-100 border border-amber-200" />
+                  {Array.from({ length: gameState.capturedPieces[topColor] }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "w-4 h-4 rounded-full border",
+                        topColor === "light" ? "bg-amber-100 border-amber-200" : "bg-stone-800 border-stone-700"
+                      )}
+                    />
                   ))}
                 </div>
                 <div className={cn(
                   "px-3 py-1.5 rounded-lg font-mono text-lg",
-                  gameState.currentPlayer === "dark" ? "bg-primary text-primary-foreground" : "bg-muted"
+                  gameState.currentPlayer === topColor ? "bg-primary text-primary-foreground" : "bg-muted"
                 )}>
                   <Clock className="w-4 h-4 inline mr-1" />
-                  {formatTime(darkTime)}
+                  {formatTime(topColor === "light" ? lightTime : darkTime)}
                 </div>
               </div>
             </div>
@@ -777,8 +797,10 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
               <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border">
                 <div className="grid grid-cols-8 aspect-square">
                   {Array.from({ length: 64 }).map((_, index) => {
-                    const row = Math.floor(index / 8)
-                    const col = index % 8
+                    const displayRow = Math.floor(index / 8)
+                    const displayCol = index % 8
+                    const row = boardPerspective === "light" ? displayRow : 7 - displayRow
+                    const col = boardPerspective === "light" ? displayCol : 7 - displayCol
                     const isDark = (row + col) % 2 === 1
                     const piece = gameState.pieces.find(
                       (p) => p.position.row === row && p.position.col === col
@@ -797,7 +819,11 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
                       <button
                         key={index}
                         onClick={() => handleSquareClick(row, col)}
-                        disabled={gameState.gameStatus !== "playing" || (mode === "ai" && gameState.currentPlayer === "dark")}
+                        disabled={
+                          gameState.gameStatus !== "playing" ||
+                          (mode === "ai" && gameState.currentPlayer === "dark") ||
+                          (mode === "online" && !isOnlinePlayerTurn)
+                        }
                         className={cn(
                           "aspect-square relative transition-all",
                           isDark ? styles.darkSquare : styles.lightSquare,
@@ -860,21 +886,27 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
                 <div className={cn("w-10 h-10 rounded-full border-2", styles.lightPiece)} />
                 <div>
                   <div className="font-medium">You</div>
-                  <div className="text-sm text-muted-foreground">ELO 1385</div>
+                  <div className="text-sm text-muted-foreground">{bottomColor === "light" ? "Light" : "Dark"}</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: gameState.capturedPieces.dark }).map((_, i) => (
-                    <div key={i} className="w-4 h-4 rounded-full bg-stone-800 border border-stone-700" />
+                  {Array.from({ length: gameState.capturedPieces[bottomColor] }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "w-4 h-4 rounded-full border",
+                        bottomColor === "light" ? "bg-amber-100 border-amber-200" : "bg-stone-800 border-stone-700"
+                      )}
+                    />
                   ))}
                 </div>
                 <div className={cn(
                   "px-3 py-1.5 rounded-lg font-mono text-lg",
-                  gameState.currentPlayer === "light" ? "bg-primary text-primary-foreground" : "bg-muted"
+                  gameState.currentPlayer === bottomColor ? "bg-primary text-primary-foreground" : "bg-muted"
                 )}>
                   <Clock className="w-4 h-4 inline mr-1" />
-                  {formatTime(lightTime)}
+                  {formatTime(bottomColor === "light" ? lightTime : darkTime)}
                 </div>
               </div>
             </div>

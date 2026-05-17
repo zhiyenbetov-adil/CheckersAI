@@ -304,6 +304,7 @@ export default function RoomPage({ params }: PageProps) {
         mode="online" 
         onMove={handleMove}
         settings={gameState?.settings}
+        onlinePlayerColor={playerColor}
         syncedGameState={gameState}
       />
     </div>

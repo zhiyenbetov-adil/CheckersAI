@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { MessageCircle, Send, X } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 type ChatMessage = { role: "assistant" | "user"; text: string }
 
@@ -14,12 +15,16 @@ function formatAssistantText(raw: string): string[] {
 }
 
 export function SupportChat() {
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", text: "Hello, I am your Checkers AI support. I can help only with Checkers AI website features." },
   ])
+
+  const hideOnGamePages = pathname?.startsWith("/play") || pathname?.startsWith("/room/")
+  if (hideOnGamePages) return null
 
   const handleSend = async () => {
     if (!input.trim()) return
