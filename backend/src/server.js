@@ -117,6 +117,17 @@ io.on("connection", (socket) => {
     const isLight = room.players.light?.id === playerId
     const isDark = room.players.dark?.id === playerId
     if (!isLight && !isDark) return
+
+    // Enforce turn ownership on server too (prevents both devices from moving both sides)
+    if (!room.gameState) {
+      if (!isLight) return
+    } else {
+      const expectedColor = room.gameState.currentPlayer
+      if ((expectedColor === "light" && !isLight) || (expectedColor === "dark" && !isDark)) {
+        return
+      }
+    }
+
     room.gameState = gameState
     room.status = gameState?.gameStatus === "finished" ? "finished" : "playing"
     io.to(normalized).emit("game:state", { gameState: room.gameState })

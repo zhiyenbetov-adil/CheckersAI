@@ -3,3 +3,4 @@
 export * from "./types"
 export * from "./moveValidation"
 export * from "./gameState"
+export * from "./ai"

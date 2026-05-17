@@ -34,8 +34,17 @@ export default function RoomPage({ params }: PageProps) {
   const [copied, setCopied] = useState(false)
   const [showWaitingOverlay, setShowWaitingOverlay] = useState(true)
   const [opponentDisconnected, setOpponentDisconnected] = useState(false)
+  const [playerName, setPlayerName] = useState("Player")
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("checkers_auth_user")
+      if (raw) {
+        const user = JSON.parse(raw) as { name?: string }
+        if (user.name?.trim()) setPlayerName(user.name.trim())
+      }
+    } catch {}
+
     const socket = getSocketClient()
     
     // Set up event listeners
@@ -87,15 +96,20 @@ export default function RoomPage({ params }: PageProps) {
 
     const unsubscribeConnected = socket.on("connected", () => {
       setIsConnected(true)
-      socket.rejoinRoom(roomId, "Player")
+      socket.rejoinRoom(roomId, playerName)
     })
 
     const unsubscribeSocketDisconnected = socket.on("disconnected", () => {
       setIsConnected(false)
     })
 
-    // Connect to socket
-    socket.connect()
+    // Connect and request room state right away (even if already connected)
+    void socket.connect().then(() => {
+      setIsConnected(true)
+      socket.rejoinRoom(roomId, playerName)
+    }).catch(() => {
+      setIsConnected(false)
+    })
 
     return () => {
       unsubscribeJoined()
@@ -106,7 +120,7 @@ export default function RoomPage({ params }: PageProps) {
       unsubscribeConnected()
       unsubscribeSocketDisconnected()
     }
-  }, [roomId])
+  }, [playerName, roomId])
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomId)

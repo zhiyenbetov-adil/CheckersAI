@@ -27,6 +27,7 @@ import {
   checkGameOver,
   getMovablePieces,
   getCaptureMoves,
+  chooseAiMoveState,
   type GameState,
   type Position,
   type Piece,
@@ -159,7 +160,7 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, online
   const topColor: PlayerColor = boardPerspective === "light" ? "dark" : "light"
   const bottomColor: PlayerColor = boardPerspective === "light" ? "light" : "dark"
   const isOnlinePlayerTurn =
-    mode !== "online" || !onlinePlayerColor ? true : gameState.currentPlayer === onlinePlayerColor
+    mode !== "online" ? true : (onlinePlayerColor ? gameState.currentPlayer === onlinePlayerColor : false)
 
   const bestMoveNotation = useMemo(() => {
     const captureMoves = gameState.moveHistory.filter((record) => record.move.isCapture)
@@ -337,135 +338,9 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, online
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  const pickMoveByDifficulty = useCallback((
-    state: GameState,
-    piece: Piece,
-    options: Position[],
-    level: "beginner" | "easy" | "medium" | "hard" | "expert"
-  ): Position => {
-    if (options.length === 1) return options[0]
-    const scored = options.map((to) => {
-      const isCapture = isCaptureTarget(piece, state.pieces, to)
-      const promotes = !piece.isKing && piece.color === "dark" && to.row === 7
-      const centerControl = 3.5 - Math.abs(3.5 - to.col)
-      const advancement = to.row - piece.position.row
-      const score = (isCapture ? 10 : 0) + (promotes ? 8 : 0) + centerControl + advancement
-      return { to, score, isCapture }
-    })
-
-    if (level === "beginner") {
-      return scored[Math.floor(Math.random() * scored.length)].to
-    }
-
-    if (level === "easy") {
-      const captures = scored.filter((m) => m.isCapture)
-      const pool = captures.length > 0 ? captures : scored
-      return pool[Math.floor(Math.random() * pool.length)].to
-    }
-
-    const sorted = [...scored].sort((a, b) => b.score - a.score)
-    if (level === "medium") return sorted[0].to
-    if (level === "hard") return sorted[Math.floor(Math.random() * Math.min(2, sorted.length))].to
-    return sorted[0].to
-  }, [isCaptureTarget])
-
-  const getMoveScore = useCallback((piece: Piece, to: Position) => {
-    const isCapture = isCaptureTarget(piece, gameState.pieces, to)
-    const promotes = !piece.isKing && piece.color === "dark" && to.row === 7
-    const centerControl = 3.5 - Math.abs(3.5 - to.col)
-    const advancement = to.row - piece.position.row
-    return (isCapture ? 10 : 0) + (promotes ? 8 : 0) + centerControl + advancement
-  }, [gameState.pieces, isCaptureTarget])
-
   const performAiTurn = useCallback((state: GameState): GameState => {
-    let nextState = state
-    let carrySteps: CaptureStep[] = []
-    let guard = 12
-
-    while (nextState.currentPlayer === "dark" && nextState.gameStatus === "playing" && guard > 0) {
-      guard -= 1
-
-      if (!nextState.selectedPiece) {
-        const pieces = getMovablePieces(nextState).filter((p) => p.color === "dark")
-        if (pieces.length === 0) break
-        const candidates = pieces.flatMap((piece) => {
-          const selectedState = selectPiece(nextState, piece.id)
-          return selectedState.validMoves.map((to) => ({
-            piece,
-            to,
-            selectedState,
-            score: getMoveScore(piece, to),
-            isCapture: isCaptureTarget(piece, selectedState.pieces, to),
-          }))
-        })
-        if (candidates.length === 0) break
-
-        let chosen = candidates[0]
-        if (aiLevel === "beginner") {
-          chosen = candidates[Math.floor(Math.random() * candidates.length)]
-        } else if (aiLevel === "easy") {
-          const captures = candidates.filter((c) => c.isCapture)
-          const pool = captures.length ? captures : candidates
-          chosen = pool[Math.floor(Math.random() * pool.length)]
-        } else if (aiLevel === "medium") {
-          chosen = [...candidates].sort((a, b) => b.score - a.score)[0]
-        } else if (aiLevel === "hard") {
-          const sorted = [...candidates].sort((a, b) => b.score - a.score)
-          chosen = sorted[Math.floor(Math.random() * Math.min(2, sorted.length))]
-        } else {
-          chosen = [...candidates].sort((a, b) => b.score - a.score)[0]
-        }
-
-        const selected = chosen.selectedState
-        if (!selected.selectedPiece || selected.validMoves.length === 0) break
-        const target = chosen.to
-        const isCapture = isCaptureTarget(selected.selectedPiece, selected.pieces, target)
-        let currentStep: CaptureStep | null = null
-        if (isCapture) {
-          const capture = getCaptureMoves(selected.selectedPiece, selected.pieces).find(
-            (c) => c.to.row === target.row && c.to.col === target.col
-          )
-          if (capture) {
-            currentStep = { from: selected.selectedPiece.position, to: capture.to, captured: capture.captured }
-          }
-        }
-
-        const { newState, move } = makeMove(selected, target, carrySteps)
-        if (currentStep) carrySteps = [...carrySteps, currentStep]
-        nextState = newState
-        if (move) {
-          carrySteps = []
-          break
-        }
-        continue
-      }
-
-      if (nextState.validMoves.length === 0) break
-      const selectedPiece = nextState.selectedPiece
-      if (!selectedPiece) break
-      const target = pickMoveByDifficulty(nextState, selectedPiece, nextState.validMoves, aiLevel)
-      const isCapture = isCaptureTarget(selectedPiece, nextState.pieces, target)
-      let currentStep: CaptureStep | null = null
-      if (isCapture) {
-        const capture = getCaptureMoves(selectedPiece, nextState.pieces).find(
-          (c) => c.to.row === target.row && c.to.col === target.col
-        )
-        if (capture) {
-          currentStep = { from: selectedPiece.position, to: capture.to, captured: capture.captured }
-        }
-      }
-
-      const { newState, move } = makeMove(nextState, target, carrySteps)
-      if (currentStep) carrySteps = [...carrySteps, currentStep]
-      nextState = newState
-      if (move) {
-        carrySteps = []
-        break
-      }
-    }
-
-    return nextState
-  }, [aiLevel, getMoveScore, isCaptureTarget, pickMoveByDifficulty])
+    return chooseAiMoveState(state, aiLevel, "dark")
+  }, [aiLevel])
 
   useEffect(() => {
     if (mode !== "ai") return
