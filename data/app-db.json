@@ -1,0 +1,113 @@
+{
+  "users": [
+    {
+      "id": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "name": "Adil",
+      "email": "zhiyenbetovadil@gmail.com",
+      "passwordHash": "d87c4581fc345b94449702d0ed8e954adaaa07ee86417decdf0a07fad4b9d4dd",
+      "premiumUntil": 1872348560854,
+      "createdAt": 1779023402345,
+      "updatedAt": 1779036574134,
+      "subscriptionTier": "premium"
+    }
+  ],
+  "logs": [
+    {
+      "id": "c4ab4c2e-ae8a-472a-ae76-ae266bf205e3",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "auth.signup",
+      "details": {
+        "source": "web"
+      },
+      "timestamp": 1779023402346
+    },
+    {
+      "id": "412928ae-4c71-4ad3-b6df-f052ad97a9de",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "page.signup.success",
+      "timestamp": 1779023402450
+    },
+    {
+      "id": "99533bd9-9437-468c-b83d-d70e25877c8b",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "auth.login.success",
+      "timestamp": 1779023423007
+    },
+    {
+      "id": "76c068ad-4fdb-472b-95a4-1fde56a1ab34",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "page.login.success",
+      "timestamp": 1779023423015
+    },
+    {
+      "id": "9f56a5da-8b78-4841-a094-67e17c507d44",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.activated",
+      "details": {
+        "months": 12,
+        "plan": "premium"
+      },
+      "timestamp": 1779036560854
+    },
+    {
+      "id": "9f9b0a13-e9dd-4374-8ea8-db0c5019a518",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.test_mode.activated",
+      "details": {
+        "plan": "premium",
+        "billingCycle": "yearly"
+      },
+      "timestamp": 1779036560899
+    },
+    {
+      "id": "401e9739-de49-4d3c-bac5-08ab37a3ecb2",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.activated",
+      "details": {
+        "months": 12,
+        "plan": "pro"
+      },
+      "timestamp": 1779036563766
+    },
+    {
+      "id": "08f29a62-319e-47b7-9b83-3073cc2cfd8e",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.test_mode.activated",
+      "details": {
+        "plan": "pro",
+        "billingCycle": "yearly"
+      },
+      "timestamp": 1779036563798
+    },
+    {
+      "id": "f0def50c-47ba-4dfd-8a1b-553d6fffde30",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.activated",
+      "details": {
+        "months": 12,
+        "plan": "premium"
+      },
+      "timestamp": 1779036574135
+    },
+    {
+      "id": "a1ea5000-b74e-44a3-89c7-1b5184fa3874",
+      "userId": "efe9507d-98ef-44cc-878b-7caeba2bdc16",
+      "email": "zhiyenbetovadil@gmail.com",
+      "action": "subscription.test_mode.activated",
+      "details": {
+        "plan": "premium",
+        "billingCycle": "yearly"
+      },
+      "timestamp": 1779036574162
+    }
+  ]
+}
