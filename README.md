@@ -88,27 +88,27 @@
 ## Визуальная витрина (Desktop)
 
 ### Главный экран: продуктовый оффер и быстрые точки входа
-![Desktop Home](docs/screenshots/home.png)
+<img src="docs/screenshots/home.png" alt="Desktop Home" width="920" />
 С первого экрана пользователь получает чёткий value proposition: играть, учиться с AI и приглашать друзей. Это демонстрирует продуктовую зрелость и понятный onboarding.
 
 ### Экран режимов игры
-![Desktop Play Modes](docs/screenshots/play.png)
+<img src="docs/screenshots/play.png" alt="Desktop Play Modes" width="920" />
 Раздел “Play” разделяет игровые сценарии: локально, против ИИ и онлайн с другом. Это снижает когнитивную нагрузку и ускоряет выбор нужного режима.
 
 ### Обучение: видео-уроки и визуальный прогресс
-![Desktop Learn](docs/screenshots/learn.png)
+<img src="docs/screenshots/learn.png" alt="Desktop Learn" width="920" />
 Карточки уроков с превью, длительностью и прогрессом формируют ощущение полноценной образовательной платформы, а не просто “доп. раздела”.
 
 ### AI Coach: анализ последней игры и модули развития
-![Desktop AI Coach](docs/screenshots/ai-coach.png)
+<img src="docs/screenshots/ai-coach.png" alt="Desktop AI Coach" width="920" />
 Секция AI Coach превращает матч в цикл роста: игра → разбор → рекомендации → следующая практика.
 
 ### Премиум/кастомизация
-![Desktop Premium](docs/screenshots/premium.png)
+<img src="docs/screenshots/premium.png" alt="Desktop Premium" width="920" />
 Кастомизация доски и стилей подчёркивает премиальность продукта и удержание через персональный игровой опыт.
 
 ### Онлайн-комнаты для игры с другом
-![Desktop Play Friend](docs/screenshots/play-friend.png)
+<img src="docs/screenshots/play-friend.png" alt="Desktop Play Friend" width="920" />
 Комнаты с кодом — центральная social-фича: быстрое подключение друзей, realtime-матч и живое взаимодействие.
 
 ---
@@ -116,27 +116,27 @@
 ## Визуальная витрина (Mobile / Cross-platform)
 
 ### Mobile: главный экран в тёмной теме
-![Mobile Home Dark](docs/screenshots/mobile/mobile-home-dark.png)
+<img src="docs/screenshots/mobile/mobile-home-dark.png" alt="Mobile Home Dark" width="320" />
 Полноценный mobile-first интерфейс с тем же уровнем продуктовой структуры, что и на desktop.
 
 ### Mobile: главный экран в светлой теме
-![Mobile Home Light](docs/screenshots/mobile/mobile-home-light.png)
+<img src="docs/screenshots/mobile/mobile-home-light.png" alt="Mobile Home Light" width="320" />
 Поддержка визуальных предпочтений пользователя и аккуратная читабельность в обоих режимах.
 
 ### Mobile: выбор сложности против ИИ
-![Mobile AI Levels](docs/screenshots/mobile/mobile-play-ai-levels.png)
+<img src="docs/screenshots/mobile/mobile-play-ai-levels.png" alt="Mobile AI Levels" width="320" />
 Все уровни сложности доступны в мобильном формате, что сохраняет глубину геймплея вне desktop.
 
 ### Mobile: игровой экран матча против ИИ
-![Mobile AI Board](docs/screenshots/mobile/mobile-play-ai-board.png)
+<img src="docs/screenshots/mobile/mobile-play-ai-board.png" alt="Mobile AI Board" width="320" />
 Таймеры, доска, контролы партии и чат остаются удобными даже на компактном экране.
 
 ### Mobile: создание/вход в комнату для игры с другом
-![Mobile Friend Rooms](docs/screenshots/mobile/mobile-friend-rooms.png)
+<img src="docs/screenshots/mobile/mobile-friend-rooms.png" alt="Mobile Friend Rooms" width="320" />
 Демонстрация WebSocket-сценария “создай комнату → передай код → играй онлайн” прямо со смартфона.
 
 ### Mobile: сохранение игровых предпочтений
-![Mobile Save Preferences](docs/screenshots/mobile/mobile-save-preferences.png)
+<img src="docs/screenshots/mobile/mobile-save-preferences.png" alt="Mobile Save Preferences" width="320" />
 Пользователь получает мгновенную обратную связь о сохранении настроек — важный элемент UX-надежности.
 
 ---
