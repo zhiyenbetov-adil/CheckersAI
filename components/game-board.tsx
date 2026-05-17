@@ -165,6 +165,9 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
 
   const persistFinishedGame = useCallback((state: GameState) => {
     if (typeof window === "undefined") return
+    const rawUser = localStorage.getItem("checkers_auth_user")
+    const authUser = rawUser ? (JSON.parse(rawUser) as { id?: string; email?: string; name?: string }) : null
+    const ratingDelta = state.winner === "light" ? 12 : state.winner === "dark" ? -10 : 2
     const summary: StoredGameSummary = {
       id: `game_${Date.now()}`,
       mode,
@@ -181,6 +184,22 @@ export function GameBoard({ mode = "local", aiLevel = "medium", settings, synced
     localStorage.setItem("checkers_game_history", JSON.stringify(nextHistory))
     const totalGames = Number(localStorage.getItem("checkers_total_games") || "0")
     localStorage.setItem("checkers_total_games", String(totalGames + 1))
+    void fetch("/api/log/client", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: authUser?.id ?? null,
+        email: authUser?.email ?? null,
+        action: "game.finished",
+        details: {
+          mode,
+          winner: state.winner ?? "draw",
+          moveCount: state.moveHistory.length,
+          ratingDelta,
+          opponent: mode === "ai" ? "AI" : mode === "local" ? "Local Player" : "Online Opponent",
+        },
+      }),
+    })
   }, [mode])
 
   const isCaptureTarget = useCallback((piece: Piece, pieces: Piece[], to: Position) => {

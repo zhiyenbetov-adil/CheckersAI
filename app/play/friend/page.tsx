@@ -46,8 +46,17 @@ export default function PlayFriendPage() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [roomState, setRoomState] = useState<RoomState | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [playerName, setPlayerName] = useState("Guest")
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("checkers_auth_user")
+      if (raw) {
+        const user = JSON.parse(raw) as { name?: string }
+        if (user.name?.trim()) setPlayerName(user.name.trim())
+      }
+    } catch {}
+
     const socket = getSocketClient()
     
     // Set up event listeners
@@ -94,6 +103,14 @@ export default function PlayFriendPage() {
     setIsConnecting(true)
     setError(null)
     const socket = getSocketClient()
+    if ((process.env.NEXT_PUBLIC_WS_URL || "").includes("example.com")) {
+      setError("Realtime server is not configured. Set NEXT_PUBLIC_WS_URL to your backend URL.")
+      setIsConnecting(false)
+      return
+    }
+    try {
+      await socket.connect()
+    } catch {}
     socket.createRoom()
   }
 
@@ -105,7 +122,15 @@ export default function PlayFriendPage() {
     setIsConnecting(true)
     setError(null)
     const socket = getSocketClient()
-    socket.joinRoom(joinCode.toUpperCase(), "Guest")
+    if ((process.env.NEXT_PUBLIC_WS_URL || "").includes("example.com")) {
+      setError("Realtime server is not configured. Set NEXT_PUBLIC_WS_URL to your backend URL.")
+      setIsConnecting(false)
+      return
+    }
+    try {
+      await socket.connect()
+    } catch {}
+    socket.joinRoom(joinCode.toUpperCase(), playerName)
   }
 
   const copyRoomCode = () => {

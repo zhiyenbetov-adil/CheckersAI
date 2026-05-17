@@ -58,6 +58,41 @@ export function BoardCustomizationSection() {
   const [selectedPieceStyle, setSelectedPieceStyle] = useState("standard")
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [animationSpeed, setAnimationSpeed] = useState([50])
+  const [isSaving, setIsSaving] = useState(false)
+
+  const savePreferences = async () => {
+    if (typeof window === "undefined") return
+    setIsSaving(true)
+    try {
+      const payload = {
+        boardTheme: selectedTheme,
+        pieceStyle: selectedPieceStyle,
+        soundEnabled,
+        animationSpeed: animationSpeed[0],
+        updatedAt: Date.now(),
+      }
+      localStorage.setItem("checkers_board_preferences", JSON.stringify(payload))
+      const rawUser = localStorage.getItem("checkers_auth_user")
+      if (rawUser) {
+        const user = JSON.parse(rawUser) as { id?: string; email?: string }
+        await fetch("/api/log/client", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id ?? null,
+            email: user.email ?? null,
+            action: "preferences.saved",
+            details: payload,
+          }),
+        })
+      }
+      alert("Preferences saved.")
+    } catch {
+      alert("Unable to save preferences.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   const currentTheme = boardThemes.find(t => t.id === selectedTheme) || boardThemes[2]
 
@@ -253,8 +288,12 @@ export function BoardCustomizationSection() {
             </div>
 
             {/* Save Button */}
-            <Button className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground">
-              Save Preferences
+            <Button
+              className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={savePreferences}
+              disabled={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save Preferences"}
             </Button>
           </motion.div>
         </div>

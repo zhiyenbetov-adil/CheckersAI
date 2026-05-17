@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Lock, Mail, User } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Button } from "@/components/ui/button"
+import { signIn } from "next-auth/react"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -63,6 +64,22 @@ export default function SignupPage() {
                 {loading ? "Creating..." : <>Sign Up <ArrowRight className="ml-2 h-4 w-4" /></>}
               </Button>
             </form>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="rounded-xl h-12" type="button" onClick={() => void signIn("google", { callbackUrl: "/oauth/success" })}>
+                Google
+              </Button>
+              <Button variant="outline" className="rounded-xl h-12" type="button" onClick={() => void signIn("github", { callbackUrl: "/oauth/success" })}>
+                GitHub
+              </Button>
+            </div>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             Already have an account? <Link href="/login" className="text-primary">Log in</Link>

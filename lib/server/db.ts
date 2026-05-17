@@ -35,6 +35,16 @@ let queue: Promise<unknown> = Promise.resolve()
 const initialDb: DbShape = { users: [], logs: [] }
 let postgresReady = false
 
+function toSafeNumber(value: unknown): number | null {
+  if (value == null) return null
+  if (typeof value === "number") return Number.isFinite(value) ? value : null
+  if (typeof value === "string") {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
 function hashPassword(password: string): string {
   return createHash("sha256").update(password).digest("hex")
 }
@@ -171,7 +181,7 @@ export async function authenticateUser(input: { email: string; password: string 
       name: string
       email: string
       password_hash: string
-      premium_until: number | null
+      premium_until: number | string | null
       subscription_tier: "free" | "premium" | "pro" | null
     } | undefined
     if (!row || row.password_hash !== hashPassword(input.password)) {
@@ -181,7 +191,7 @@ export async function authenticateUser(input: { email: string; password: string 
       id: row.id,
       name: row.name,
       email: row.email,
-      premiumUntil: row.premium_until,
+      premiumUntil: toSafeNumber(row.premium_until),
       subscriptionTier: row.subscription_tier ?? "free",
     }
   }
@@ -211,10 +221,11 @@ export async function activatePremium(input: { email: string; months?: number; p
       WHERE email = ${email}
       LIMIT 1
     `
-    const user = existing.rows[0] as { id: string; premium_until: number | null } | undefined
+    const user = existing.rows[0] as { id: string; premium_until: number | string | null } | undefined
     if (!user) throw new Error("User not found")
     const now = Date.now()
-    const base = user.premium_until && user.premium_until > now ? user.premium_until : now
+    const premiumUntilCurrent = toSafeNumber(user.premium_until)
+    const base = premiumUntilCurrent && premiumUntilCurrent > now ? premiumUntilCurrent : now
     const months = Math.max(1, input.months ?? 1)
     const premiumUntil = base + months * 30 * 24 * 60 * 60 * 1000
     const tier = input.plan ?? "premium"
@@ -306,4 +317,172 @@ export async function getRecentLogs(limit = 100): Promise<ActivityLog[]> {
 
   const db = await readDb()
   return db.logs.slice(-limit).reverse()
+}
+
+export async function getUserById(userId: string): Promise<UserRecord | null> {
+  if (shouldUsePostgres()) {
+    await ensurePostgresSchema()
+    const result = await sql`
+      SELECT id, name, email, password_hash, premium_until, subscription_tier, created_at, updated_at
+      FROM users
+      WHERE id = ${userId}
+      LIMIT 1
+    `
+    const row = result.rows[0] as {
+      id: string
+      name: string
+      email: string
+      password_hash: string
+      premium_until: number | string | null
+      subscription_tier: "free" | "premium" | "pro" | null
+      created_at: number | string
+      updated_at: number | string
+    } | undefined
+    if (!row) return null
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      passwordHash: row.password_hash,
+      premiumUntil: toSafeNumber(row.premium_until),
+      subscriptionTier: row.subscription_tier ?? "free",
+      createdAt: Number(row.created_at),
+      updatedAt: Number(row.updated_at),
+    }
+  }
+
+  const db = await readDb()
+  return db.users.find((u) => u.id === userId) ?? null
+}
+
+export async function getUserByEmail(emailInput: string): Promise<UserRecord | null> {
+  const email = emailInput.trim().toLowerCase()
+  if (shouldUsePostgres()) {
+    await ensurePostgresSchema()
+    const result = await sql`
+      SELECT id, name, email, password_hash, premium_until, subscription_tier, created_at, updated_at
+      FROM users
+      WHERE email = ${email}
+      LIMIT 1
+    `
+    const row = result.rows[0] as {
+      id: string
+      name: string
+      email: string
+      password_hash: string
+      premium_until: number | string | null
+      subscription_tier: "free" | "premium" | "pro" | null
+      created_at: number | string
+      updated_at: number | string
+    } | undefined
+    if (!row) return null
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      passwordHash: row.password_hash,
+      premiumUntil: toSafeNumber(row.premium_until),
+      subscriptionTier: row.subscription_tier ?? "free",
+      createdAt: Number(row.created_at),
+      updatedAt: Number(row.updated_at),
+    }
+  }
+
+  const db = await readDb()
+  return db.users.find((u) => u.email === email) ?? null
+}
+
+export async function listUsers(limit = 500): Promise<UserRecord[]> {
+  if (shouldUsePostgres()) {
+    await ensurePostgresSchema()
+    const result = await sql`
+      SELECT id, name, email, password_hash, premium_until, subscription_tier, created_at, updated_at
+      FROM users
+      ORDER BY created_at ASC
+      LIMIT ${Math.max(1, Math.min(limit, 5000))}
+    `
+    return result.rows.map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      email: String(row.email),
+      passwordHash: String(row.password_hash),
+      premiumUntil: toSafeNumber(row.premium_until),
+      subscriptionTier: (row.subscription_tier as "free" | "premium" | "pro" | null) ?? "free",
+      createdAt: Number(row.created_at),
+      updatedAt: Number(row.updated_at),
+    }))
+  }
+
+  const db = await readDb()
+  return db.users.slice(0, limit)
+}
+
+export async function upsertOAuthUser(input: { name: string; email: string }) {
+  const email = input.email.trim().toLowerCase()
+  const name = input.name.trim() || email.split("@")[0]
+  const now = Date.now()
+  const oauthPasswordHash = hashPassword(`oauth:${email}`)
+
+  if (shouldUsePostgres()) {
+    await ensurePostgresSchema()
+    const existing = await sql`
+      SELECT id, name, email, premium_until, subscription_tier
+      FROM users
+      WHERE email = ${email}
+      LIMIT 1
+    `
+    if (existing.rows.length > 0) {
+      const row = existing.rows[0] as { id: string; premium_until: number | string | null; subscription_tier: "free" | "premium" | "pro" | null; name: string; email: string }
+      await sql`UPDATE users SET name = ${name}, updated_at = ${now} WHERE id = ${row.id}`
+      return {
+        id: row.id,
+        name,
+        email: row.email,
+        premiumUntil: toSafeNumber(row.premium_until),
+        subscriptionTier: row.subscription_tier ?? "free",
+      }
+    }
+    const id = randomUUID()
+    await sql`
+      INSERT INTO users (id, name, email, password_hash, premium_until, subscription_tier, created_at, updated_at)
+      VALUES (${id}, ${name}, ${email}, ${oauthPasswordHash}, ${null}, ${"free"}, ${now}, ${now})
+    `
+    return { id, name, email, premiumUntil: null, subscriptionTier: "free" as const }
+  }
+
+  return runExclusive(async () => {
+    const db = await readDb()
+    const existing = db.users.find((u) => u.email === email)
+    if (existing) {
+      existing.name = name
+      existing.updatedAt = now
+      await writeDb(db)
+      return {
+        id: existing.id,
+        name: existing.name,
+        email: existing.email,
+        premiumUntil: existing.premiumUntil,
+        subscriptionTier: existing.subscriptionTier,
+      }
+    }
+    const user: UserRecord = {
+      id: randomUUID(),
+      name,
+      email,
+      passwordHash: oauthPasswordHash,
+      premiumUntil: null,
+      subscriptionTier: "free",
+      createdAt: now,
+      updatedAt: now,
+    }
+    db.users.push(user)
+    await writeDb(db)
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      premiumUntil: user.premiumUntil,
+      subscriptionTier: user.subscriptionTier,
+    }
+  })
 }
