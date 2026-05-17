@@ -30,7 +30,7 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="bg-background text-foreground border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer content */}
         <div className="py-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12">
@@ -44,10 +44,10 @@ export function Footer() {
                 Checkers<span className="text-primary"> AI</span>
               </span>
             </Link>
-            <p className="text-sm text-background/70 mb-6 max-w-xs">
+            <p className="text-sm text-muted-foreground mb-6 max-w-xs">
               The next generation AI-powered checkers platform. Master the game with cutting-edge technology.
             </p>
-            <div className="text-xs text-background/60">Support and legal info available below.</div>
+            <div className="text-xs text-muted-foreground/80">Support and legal info available below.</div>
           </div>
 
           {/* Product */}
@@ -58,7 +58,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -75,7 +75,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -92,7 +92,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -109,7 +109,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -120,20 +120,20 @@ export function Footer() {
         </div>
 
         {/* Newsletter */}
-        <div className="py-8 border-t border-background/10">
+        <div className="py-8 border-t border-border">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-primary" />
               <div>
                 <h4 className="font-medium">Stay updated</h4>
-                <p className="text-sm text-background/70">Get the latest news and updates</p>
+                <p className="text-sm text-muted-foreground">Get the latest news and updates</p>
               </div>
             </div>
             <form className="flex w-full sm:w-auto gap-2">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 sm:w-64 px-4 py-2.5 rounded-xl bg-background/10 border border-background/20 text-sm placeholder:text-background/50 focus:outline-none focus:border-primary transition-colors"
+                className="flex-1 sm:w-64 px-4 py-2.5 rounded-xl bg-muted border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               />
               <button
                 type="submit"
@@ -146,16 +146,16 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-background/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-background/50">
+        <div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>ADIL ZHIYENBETOV. Especially built for nFactorial Incubator 2026.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-background transition-colors">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-background transition-colors">
+            <Link href="/terms" className="hover:text-foreground transition-colors">
               Terms
             </Link>
-            <Link href="/cookies" className="hover:text-background transition-colors">
+            <Link href="/cookies" className="hover:text-foreground transition-colors">
               Cookies
             </Link>
           </div>

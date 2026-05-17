@@ -1,129 +1,218 @@
 # Checkers AI
 
-Checkers AI is a modern web app for learning, playing, and improving at checkers with AI coaching, online rooms, and premium customization.
+**Checkers AI** — интеллектуальная веб-платформа для обучения игре в шашки, практики в матчах против ИИ и игры с друзьями по сети в реальном времени.
 
-## Beta notice
+Проект разработан и оформлен как продукт уровня startup/demo-day: акцент на UX, кроссплатформенность, AI-функции и online multiplayer с комнатами.
 
-This project is currently in **beta/startup mode**.  
-Until the official public launch, **everyone can activate Premium/Pro features in one click** from the Premium page (test mode enabled).
+---
 
-## Product gallery
+## Почему этот проект сильный
 
-### Home
-![Home](docs/screenshots/home.png)
+- Современный интерфейс в светлой и тёмной темах.
+- Полный пользовательский путь: регистрация, профиль, обучение, игра, прогресс, рейтинг.
+- Встроенный AI-слой: AI Coach, анализ партий, адаптивные обучающие модули.
+- Realtime-архитектура через WebSocket/Socket.IO для режима “Play with Friend”.
+- Кроссплатформенный опыт: одинаково удобно на desktop и mobile.
+- Персонализация игрового опыта: темы доски, стили фигур, сохранение предпочтений.
 
-### Play (AI / local board)
-![Play](docs/screenshots/play.png)
+---
 
-### Learn (video cards with embedded player)
-![Learn](docs/screenshots/learn.png)
+## Startup/Beta статус
 
-### AI Coach (post-game analysis and training modules)
-![AI Coach](docs/screenshots/ai-coach.png)
+Сейчас продукт в **beta-режиме стартапа**.  
+До официального релиза премиум-функции доступны в тестовом формате для демонстрации полного потенциала продукта.
 
-### Premium / Pro activation
-![Premium](docs/screenshots/premium.png)
+---
 
-### Play with Friend (online room)
-![Play Friend](docs/screenshots/play-friend.png)
+## Ключевые функции
 
-## Core features
+### 1) AI-first обучение и рост игрока
+- Структурированные уроки от базовых принципов до продвинутой тактики.
+- Прогресс обучения в реальном интерфейсе.
+- AI Coach для пост-игрового разбора и рекомендаций.
 
-- Account registration and login
-- Learn section with YouTube video previews and in-site playback
-- AI coach with game analysis, recommendations, and training progress
-- Premium and Pro test activation (no payment required in beta)
-- Board theme unlocks by plan:
-  - `Free`: Classic
-  - `Premium`: Classic + Emerald
-  - `Pro`: Classic + Emerald + Pearl
-- Online multiplayer via Socket.IO room codes
-- User activity logs and persistent user data
+### 2) Игра против ИИ
+- Выбор уровней сложности от Beginner до Expert.
+- Игровой интерфейс с таймерами, историей ходов и контролями партии.
+- Режим ориентирован на практическую прокачку навыка.
 
-## How to use
+### 3) Игра с другом онлайн (WebSocket)
+- Создание комнаты с кодом.
+- Вход по коду с другого устройства.
+- Синхронизация матча в реальном времени.
+- Технологическая база: Socket.IO/WebSocket.
 
-1. Sign up or log in.
-2. Open `Learn` and play lesson videos to grow learning progress.
-3. Open `Play` and choose:
-   - AI game
-   - Local game
-   - Friend room game
-4. After game finish, view result popup and AI analysis.
-5. Open `Premium` and click:
-   - `Start Free Trial` -> activates Premium in test mode
-   - `Go Pro` -> activates Pro in test mode
-6. Return to game pages and verify unlocked premium features.
+### 4) Профиль и данные игрока
+- Профиль с именем, почтой, рейтингом и игровой статистикой.
+- Разделы с историей матчей, достижениями и метриками.
+- Система хранения и использования игровых логов.
 
-## Tech stack
+### 5) Кастомизация
+- Визуальная настройка доски и фигур.
+- Переключение тем и сохранение предпочтений.
 
-- Frontend: Next.js 16, React 19, TypeScript, Tailwind, Framer Motion
-- Realtime: Socket.IO client + Node.js Socket.IO backend
-- AI: Gemini API integration
-- Storage:
-  - Production: Postgres (when `POSTGRES_URL`/`DATABASE_URL` is set)
-  - Local fallback: `data/app-db.json`
+### 6) Кроссплатформенность
+- Адаптивный UI/UX для больших экранов и смартфонов.
+- Все ключевые сценарии доступны с телефона без потери удобства.
 
-## Local run
+---
 
+## Premium Experience и монетизация
+
+- В продукт встроены уровни подписки **Premium** и **Pro**.
+- Подписки открывают расширенную кастомизацию: дополнительные темы доски, стили фигур, визуальные пресеты и beta-механики.
+- Такой слой не только про визуал: это модель удержания и монетизации, где пользователь получает ощущение персонального игрового пространства.
+- В beta-режиме часть платных возможностей может быть доступна для тестирования и сбора обратной связи перед production-релизом.
+
+---
+
+## Для кого этот продукт (целевая аудитория)
+
+- **Новички**, которым нужно быстро и понятно освоить шашки через практику и guided-обучение.
+- **Игроки без постоянного соперника**, которым нужен доступный AI-оппонент с разными уровнями сложности.
+- **Друзья**, которые хотят играть онлайн в отдельных комнатах без сложной настройки (код комнаты + мгновенное подключение).
+- **Соревновательные пользователи**, которым важны рейтинг, динамика роста, лидерборд и реальные метрики прогресса.
+- **Пользователи, ориентированные на данные**, которым важно видеть, как история матчей влияет на ELO и позиции в таблице.
+
+---
+
+## Аутентификация и user identity
+
+- Email/password регистрация и вход.
+- OAuth-вход через **Google**.
+- OAuth-вход через **GitHub**.
+- После регистрации/логина данные пользователя (имя, email, рейтинг, история игр) используются в профиле, лидерборде и аналитических блоках.
+
+---
+
+## Визуальная витрина (Desktop)
+
+### Главный экран: продуктовый оффер и быстрые точки входа
+![Desktop Home](docs/screenshots/home.png)
+С первого экрана пользователь получает чёткий value proposition: играть, учиться с AI и приглашать друзей. Это демонстрирует продуктовую зрелость и понятный onboarding.
+
+### Экран режимов игры
+![Desktop Play Modes](docs/screenshots/play.png)
+Раздел “Play” разделяет игровые сценарии: локально, против ИИ и онлайн с другом. Это снижает когнитивную нагрузку и ускоряет выбор нужного режима.
+
+### Обучение: видео-уроки и визуальный прогресс
+![Desktop Learn](docs/screenshots/learn.png)
+Карточки уроков с превью, длительностью и прогрессом формируют ощущение полноценной образовательной платформы, а не просто “доп. раздела”.
+
+### AI Coach: анализ последней игры и модули развития
+![Desktop AI Coach](docs/screenshots/ai-coach.png)
+Секция AI Coach превращает матч в цикл роста: игра → разбор → рекомендации → следующая практика.
+
+### Премиум/кастомизация
+![Desktop Premium](docs/screenshots/premium.png)
+Кастомизация доски и стилей подчёркивает премиальность продукта и удержание через персональный игровой опыт.
+
+### Онлайн-комнаты для игры с другом
+![Desktop Play Friend](docs/screenshots/play-friend.png)
+Комнаты с кодом — центральная social-фича: быстрое подключение друзей, realtime-матч и живое взаимодействие.
+
+---
+
+## Визуальная витрина (Mobile / Cross-platform)
+
+### Mobile: главный экран в тёмной теме
+![Mobile Home Dark](docs/screenshots/mobile/mobile-home-dark.png)
+Полноценный mobile-first интерфейс с тем же уровнем продуктовой структуры, что и на desktop.
+
+### Mobile: главный экран в светлой теме
+![Mobile Home Light](docs/screenshots/mobile/mobile-home-light.png)
+Поддержка визуальных предпочтений пользователя и аккуратная читабельность в обоих режимах.
+
+### Mobile: выбор сложности против ИИ
+![Mobile AI Levels](docs/screenshots/mobile/mobile-play-ai-levels.png)
+Все уровни сложности доступны в мобильном формате, что сохраняет глубину геймплея вне desktop.
+
+### Mobile: игровой экран матча против ИИ
+![Mobile AI Board](docs/screenshots/mobile/mobile-play-ai-board.png)
+Таймеры, доска, контролы партии и чат остаются удобными даже на компактном экране.
+
+### Mobile: создание/вход в комнату для игры с другом
+![Mobile Friend Rooms](docs/screenshots/mobile/mobile-friend-rooms.png)
+Демонстрация WebSocket-сценария “создай комнату → передай код → играй онлайн” прямо со смартфона.
+
+### Mobile: сохранение игровых предпочтений
+![Mobile Save Preferences](docs/screenshots/mobile/mobile-save-preferences.png)
+Пользователь получает мгновенную обратную связь о сохранении настроек — важный элемент UX-надежности.
+
+---
+
+## Технологический стек
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion  
+- **Realtime:** Socket.IO (WebSocket transport)  
+- **AI:** Gemini API (для AI Coach / AI Support сценариев)  
+- **Data layer:** Postgres (production), fallback JSON для локальных тестов  
+- **Deploy:** Vercel (frontend) + отдельный backend-хостинг (Render/Railway/Fly и т.д.)
+
+### Инструменты разработки и delivery
+
+- **GitHub** — version control, ветки, ревью и delivery-процесс.
+- **v0** — ускоренная генерация UI-скелетов и интерфейсных заготовок.
+- **Codex / ChatGPT / Claude** — ускорение разработки, рефакторинг, архитектурные решения, документация и QA-поддержка.
+- **Vercel** — production-деплой фронтенда, preview-сборки и environment management.
+- **Render / Railway / Fly** — варианты хостинга realtime/backend-слоя.
+
+---
+
+## Архитектурная ценность
+
+- UI и логика разделены по сценариям пользователя (learn / play / coach / profile).
+- Realtime-режим вынесен в socket-слой для синхронной игры между устройствами.
+- Серверные API-роуты закрывают аутентификацию, логи, профильные сводки и рейтинг.
+- Структура подходит для масштабирования под реальную продуктовую нагрузку.
+
+### Product mindset (не просто “программа”, а сервис)
+
+- Проект спроектирован как продукт с реальными пользовательскими сценариями: обучение, игра, прогресс, конкуренция и social-взаимодействие.
+- AI внедрён в пользовательский путь не ради «демо-эффекта», а как инструмент роста игрока и удержания.
+- Монетизационный слой (Premium/Pro) и кастомизация интегрированы в core UX как часть go-to-market стратегии.
+- Это демонстрация не только навыка кодинга, но и системного мышления: архитектура + UX + данные + масштабируемость + бизнес-логика.
+
+---
+
+## Запуск локально
+
+### Frontend
 ```bash
 npm install
 npm run dev
 ```
+Открыть: `http://localhost:3000`
 
-Open `http://localhost:3000`.
-
-### Realtime backend for friend mode
-
+### Realtime backend (Play with Friend)
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+По умолчанию backend слушает `http://localhost:3001`
 
-Backend runs at `http://localhost:3001`.
+---
 
-## Environment variables
+## Переменные окружения
 
-Create `.env.local`:
+Пример для `.env.local`:
 
 ```env
 NEXT_PUBLIC_WS_URL=http://localhost:3001
 GEMINI_API_KEY=your_key
 GEMINI_MODEL=gemini-2.5-flash-lite
 POSTGRES_URL=your_postgres_connection_string
+DATABASE_URL=your_postgres_connection_string
 ```
 
-If no Postgres URL is set, app uses local JSON fallback storage.
+---
 
-## Deploy to GitHub + Vercel
+## Конкурсный фокус
 
-### 1) Push to GitHub
+Этот проект демонстрирует не просто красивый интерфейс, а продуктовую систему:
+- от первого входа пользователя до продвинутой игровой аналитики,
+- от одиночной практики до сетевых матчей в реальном времени,
+- от кроссплатформенного UX до AI-интеграций и data-driven подхода.
 
-```bash
-git add .
-git commit -m "Release-ready beta build"
-git push
-```
-
-### 2) Deploy frontend on Vercel
-
-1. Import GitHub repo into Vercel
-2. Set env vars:
-   - `POSTGRES_URL` (or `DATABASE_URL`)
-   - `GEMINI_API_KEY`
-   - `GEMINI_MODEL`
-   - `NEXT_PUBLIC_WS_URL` (public URL of realtime backend)
-3. Deploy
-
-### 3) Deploy realtime backend separately
-
-`backend/src/server.js` is a long-running Socket.IO server and should be hosted separately (Render/Railway/Fly.io).  
-Then set `NEXT_PUBLIC_WS_URL` in Vercel to that public backend URL.
-
-## Production checklist
-
-1. Signup/login persists after refresh
-2. Premium/Pro activation persists after refresh
-3. `/api/log/recent` returns activity logs from DB
-4. Learn videos open and play in embedded modal
-5. Two-device room test works (create/join/sync/disconnect/reconnect)
+Именно такой баланс между инженерией, UX и growth-потенциалом делает **Checkers AI** сильным кандидатом для стартап-конкурсов и инкубаторов.
